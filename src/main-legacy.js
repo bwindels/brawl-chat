@@ -1,5 +1,6 @@
 /*
 Copyright 2020 Bruno Windels <bruno@windels.cloud>
+Copyright 2020 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,8 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// import {RecordRequester, ReplayRequester} from "./matrix/net/request/replay.js";
-import {createFetchRequest} from "./matrix/net/request/fetch.js";
+// polyfills needed for IE11
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+import "mdn-polyfills/Element.prototype.closest";
+// TODO: contribute this to mdn-polyfills
+if (!Element.prototype.remove) {
+    Element.prototype.remove = function remove() {
+        this.parentNode.removeChild(this);
+    };
+}
+
+import {xhrRequest} from "./matrix/net/request/xhr.js";
 import {SessionContainer} from "./matrix/SessionContainer.js";
 import {StorageFactory} from "./matrix/storage/idb/StorageFactory.js";
 import {SessionInfoStorage} from "./matrix/sessioninfo/localstorage/SessionInfoStorage.js";
@@ -26,19 +37,9 @@ import {OnlineStatus} from "./ui/web/dom/OnlineStatus.js";
 
 export default async function main(container) {
     try {
-        // to replay:
-        // const fetchLog = await (await fetch("/fetchlogs/constrainterror.json")).json();
-        // const replay = new ReplayRequester(fetchLog, {delay: false});
-        // const request = replay.request;
-
-        // to record:
-        // const recorder = new RecordRequester(createFetchRequest(clock.createTimeout));
-        // const request = recorder.request;
-        // window.getBrawlFetchLog = () => recorder.log();
-        // normal network:
-        const clock = new Clock();
-        const request = createFetchRequest(clock.createTimeout);
+        const request = xhrRequest;
         const sessionInfoStorage = new SessionInfoStorage("brawl_sessions_v1");
+        const clock = new Clock();
         const storageFactory = new StorageFactory();
 
         const vm = new BrawlViewModel({
