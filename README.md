@@ -1,3 +1,6 @@
+This project is continuing at https://github.com/vector-im/hydrogen-web
+
+
 # Brawl
 
 A minimal [Matrix](https://matrix.org/) chat client, focused on performance and offline functionality.
